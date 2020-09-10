@@ -799,6 +799,29 @@ FROM (
 WHERE [c].[City] = N'Seattle'");
         }
 
+        public override void FromSql_with_db_parameter_in_split_query()
+        {
+            base.FromSql_with_db_parameter_in_split_query();
+
+            AssertSql(
+                @"customerID='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @customerID
+) AS [c]
+ORDER BY [c].[CustomerID]",
+                //
+                @"customerID='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @customerID
+) AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]");
+        }
+
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqlParameter { ParameterName = name, Value = value };
 

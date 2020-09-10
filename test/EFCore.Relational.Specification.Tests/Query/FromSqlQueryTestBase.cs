@@ -987,6 +987,22 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             Assert.NotNull(actual);
         }
 
+        [ConditionalFact]
+        public virtual void FromSql_with_db_parameter_in_split_query()
+        {
+            using var context = CreateContext();
+
+            var actual = context.Set<Customer>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
+                    CreateDbParameter("customerID", "ALFKI"))
+                .Include(e => e.Orders)
+                .AsSplitQuery()
+                .ToArray();
+
+            var customer = Assert.Single(actual);
+            Assert.Equal(6, customer.Orders.Count);
+        }
+
         protected string NormalizeDelimitersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
