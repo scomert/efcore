@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -37,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
         private readonly bool _loadSpatialite;
         private readonly int? _commandTimeout;
+        private readonly bool _enableRegex;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             if (optionsExtension != null)
             {
                 _loadSpatialite = optionsExtension.LoadSpatialite;
+                _enableRegex = optionsExtension.EnableRegex;
 
                 var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
                 _commandTimeout = relationalOptions.CommandTimeout;
@@ -112,6 +115,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 if (_commandTimeout.HasValue)
                 {
                     sqliteConnection.DefaultTimeout = _commandTimeout.Value;
+                }
+
+                if (_enableRegex)
+                {
+                    sqliteConnection.CreateFunction<string, string, bool>(
+                        "regexp",
+                        (pattern, input) =>
+                        {
+                            if (input == null || pattern == null)
+                            {
+                                return false;
+                            }
+
+                            return Regex.IsMatch(pattern, input);
+                        });
                 }
 
                 sqliteConnection.CreateFunction<object, object, object>(
