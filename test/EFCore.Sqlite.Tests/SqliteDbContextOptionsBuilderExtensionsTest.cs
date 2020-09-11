@@ -96,5 +96,16 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
         }
+
+        [ConditionalFact]
+        public void Can_add_extension_with_enable_regex()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlite("Database=Crunchie", b => b.EnableRegex()) ;
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
+
+            Assert.True(extension.EnableRegex);
+        }
     }
 }

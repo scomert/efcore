@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
     {
         private DbContextOptionsExtensionInfo _info;
         private bool _loadSpatialite;
+        private bool _enableRegex;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             : base(copyFrom)
         {
             _loadSpatialite = copyFrom._loadSpatialite;
+            _enableRegex = copyFrom._enableRegex;
         }
 
         /// <summary>
@@ -82,6 +84,29 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             var clone = (SqliteOptionsExtension)Clone();
 
             clone._loadSpatialite = loadSpatialite;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool EnableRegex => _enableRegex;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SqliteOptionsExtension WithEnableRegex()
+        {
+            var clone = (SqliteOptionsExtension)Clone();
+
+            clone._enableRegex = true;
 
             return clone;
         }

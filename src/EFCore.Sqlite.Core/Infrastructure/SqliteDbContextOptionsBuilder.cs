@@ -27,5 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             : base(optionsBuilder)
         {
         }
+
+        /// <summary>
+        ///     Configures enabling Regex.IsMatch method translation
+        /// </summary>
+        public virtual SqliteDbContextOptionsBuilder EnableRegex()
+        {
+            return WithOption(e => e.WithEnableRegex());
+        }
     }
 }
